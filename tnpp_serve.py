@@ -11,6 +11,9 @@ pipeline=os.environ.get("TNPP_PIPELINE","parse_plaintext")
 max_char=int(os.environ.get("TNPP_MAX_CHARS",15000))
 available_pipelines=read_pipelines(model)
 p=Pipeline(available_pipelines[pipeline])
+
+# Warm up pipeline
+p.parse("Tämä on lämmittelylause.")
              
 @app.route("/",methods=["GET"])
 def parse_get():
