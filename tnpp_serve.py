@@ -21,7 +21,7 @@ def parse_get():
     txt=flask.request.args.get("text")
     if not txt:
         return "You need to specify ?text=sometext",400
-    res=p.parse(txt)
+    res=p.parse_threadsafe(txt)
     return flask.Response(res,mimetype="text/plain; charset=utf-8")
 
 @app.route("/",methods=["POST"])
@@ -33,7 +33,7 @@ def parse_post():
     if not txt:
         return """You need to post your data as a single string. An example request would be curl --request POST --data 'Tämä on testilause' http://localhost:7689\n\n\n""",400
     else:
-        res=p.parse(txt)
+        res=p.parse_threadsafe(txt)
     return flask.Response(res,mimetype="text/plain; charset=utf-8")
 
 

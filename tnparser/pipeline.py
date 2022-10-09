@@ -1,5 +1,6 @@
 from multiprocessing import Process,Queue
 import multiprocessing as multiprocessing
+from threading import Lock
 import importlib
 import hashlib
 import random
@@ -22,6 +23,7 @@ class Pipeline:
 
     def __init__(self, steps, extra_args=None):
         """ """
+        self.lock = Lock()
         self.ctx=multiprocessing.get_context()
         self.job_counter=0
         self.done_jobs={}
@@ -131,10 +133,21 @@ class Pipeline:
                 break
         return res
 
-    def parse_batched(self,inp,):
-        """inp: is a file-like object with input data
-           yield_res: 
-           """
-        pass
-           
-        
+    def parse_threadsafe(self,txt):
+        self.lock.acquire()
+        try:
+            job_id=self.put(txt)
+        finally:
+            self.lock.release()
+
+        while True:
+            self.lock.acquire()
+            try:
+                res=self.get(job_id)
+            finally:
+                self.lock.release()
+            if res is None:
+                time.sleep(0.1)
+            else:
+                break
+        return res
